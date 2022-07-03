@@ -23,7 +23,11 @@ const markup = {
 
   // Provide the contents of the TOC file.
   getTOC: (document) => {
-    return markup.getContents(document, document.generateContentsCallback ? callbackContent : false);
+    let callbackContent;
+    if(document.generateContentsCallback) {
+      callbackContent = document.generateContentsCallback(document.filesForTOC);
+    }
+    return markup.getContents(document, callbackContent);
   },
 
   // Provide the contents of the cover HTML enclosure.

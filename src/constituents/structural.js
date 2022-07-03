@@ -20,6 +20,7 @@ const structural = {
 
   // Provide the contents of the OPF (spine) file.
   getOPF: (document) => {
+    let coverContent;
     let coverFilename;
     if(document.coverType === "image") {
       coverContent = "cover-image";
@@ -30,6 +31,8 @@ const structural = {
 
     const replacementContext = replacements(document, {
       document,
+      coverContent,
+      coverFilename,
       path,
       util
     });

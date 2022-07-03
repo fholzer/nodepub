@@ -25,7 +25,7 @@ describe('Create EPUB with invalid document metadata', () => {
   it('should throw an exception if no ID', () => {
     expect(() => {
       nodepub.document({
-        title: 'T', author: 'A', genre: 'Non-Fiction', cover: 'cover.png',
+        title: 'T', author: 'A', genre: 'Non-Fiction', coverType: 'image', cover: 'cover.png',
       });
     }).to.throw(': id');
   });
@@ -33,7 +33,7 @@ describe('Create EPUB with invalid document metadata', () => {
   it('should throw an exception if no Title', () => {
     expect(() => {
       nodepub.document({
-        id: '1', author: 'A', genre: 'Non-Fiction', cover: 'cover.png',
+        id: '1', author: 'A', genre: 'Non-Fiction', coverType: 'image', cover: 'cover.png',
       });
     }).to.throw(': title');
   });
@@ -41,7 +41,7 @@ describe('Create EPUB with invalid document metadata', () => {
   it('should throw an exception if no Author', () => {
     expect(() => {
       nodepub.document({
-        id: '1', title: 'T', genre: 'Non-Fiction', cover: 'cover.png',
+        id: '1', title: 'T', genre: 'Non-Fiction', coverType: 'image', cover: 'cover.png',
       });
     }).to.throw(': author');
   });
@@ -62,6 +62,7 @@ describe('Create EPUB with a valid document', () => {
   beforeEach(() => {
     validMetadata = {
       id: Date.now(),
+      coverType: 'image',
       cover: 'test/test-cover.png',
       title: 'Test Document',
       series: 'My Series',
@@ -283,8 +284,8 @@ describe('Create EPUB with a valid document', () => {
               opfContent = f.content;
             }
           });
-          const copyrightPageInOPF = opfContent.indexOf("<itemref idref='s1' />");
-          const contentsPageInOPF = opfContent.indexOf("<itemref idref='toc'/>");
+          const copyrightPageInOPF = opfContent.indexOf('<itemref idref="s1">');
+          const contentsPageInOPF = opfContent.indexOf('<itemref idref="toc">');
           expect(copyrightPageInOPF).to.be.lessThan(contentsPageInOPF);
         });
       });
