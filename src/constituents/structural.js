@@ -22,7 +22,14 @@ const structural = {
 
   // Provide the contents of the OPF (spine) file.
   getOPF: (document) => {
-    const coverFilename = path.basename(document.coverImage);
+    let coverFilename;
+    if(document.coverType === "image") {
+      coverContent = "cover-image";
+      coverFilename = path.basename(document.cover);
+    } else {
+      coverContent = "cover";
+    }
+
     let i;
     let result = '';
     result += "<?xml version='1.0' encoding='utf-8'?>[[EOL]]";
@@ -66,10 +73,12 @@ const structural = {
       result += "    <meta name='calibre:series_index' content='[[SEQUENCE]]'/>[[EOL]]";
     }
 
-    result += "    <meta name='cover' content='cover-image'/>[[EOL]]";
+    result += `    <meta name='cover' content='${coverContent}'/>[[EOL]]`;
     result += '  </metadata>[[EOL]]';
     result += '  <manifest>[[EOL]]';
-    result += `    <item id='cover-image' media-type='${util.getImageType(coverFilename)}' href='images/${coverFilename}'/>[[EOL]]`;
+    if(document.coverType === "image") {
+      result += `    <item id='cover-image' media-type='${util.getImageType(coverFilename)}' href='images/${coverFilename}'/>[[EOL]]`;
+    }
     result += "    <item id='cover' media-type='application/xhtml+xml' href='cover.xhtml'/>[[EOL]]";
     result += "    <item id='navigation' media-type='application/x-dtbncx+xml' href='navigation.ncx'/>[[EOL]]";
 

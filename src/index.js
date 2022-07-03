@@ -6,6 +6,11 @@ const structuralFiles = require('./constituents/structural.js');
 const markupFiles = require('./constituents/markup.js');
 const util = require('./utility.js');
 
+const COVER_TYPES = [
+  "text",
+  "image"
+];
+
 // Construct a new document.
 const document = (metadata, generateContentsCallback) => {
   const self = this;
@@ -16,18 +21,22 @@ const document = (metadata, generateContentsCallback) => {
   self.generateContentsCallback = generateContentsCallback;
   self.showContents = true;
   self.filesForTOC = [];
-  self.coverImage = '';
 
   // Basic validation.
-  const required = ['id', 'title', 'author', 'cover'];
+  const required = ['id', 'title', 'author', 'cover', 'coverType'];
   if (metadata == null) throw new Error('Missing metadata');
+
   required.forEach((field) => {
     const prop = metadata[field];
     if (prop == null || typeof (prop) === 'undefined' || prop.toString().trim() === '') throw new Error(`Missing metadata: ${field}`);
-    if (field === 'cover') {
-      self.coverImage = prop;
-    }
   });
+
+  if(!COVER_TYPES.includes(metadata.coverType)) {
+    throw new Error(`coverType must be one of ${COVER_TYPES.map(e => `"${e}"`).join(', ')}`);
+  }
+  self.coverType = metadata.coverType;
+  self.cover = metadata.cover;
+
   if (metadata.showContents !== null && typeof (metadata.showContents) !== 'undefined') {
     self.showContents = metadata.showContents;
   }
@@ -102,11 +111,13 @@ const document = (metadata, generateContentsCallback) => {
       });
     }
 
+    if(self.coverType === "image") {
+      const coverFilename = path.basename(self.cover);
+      asyncFiles.push({
+        name: coverFilename, folder: 'OEBPF/images', compress: true, content: self.cover,
+      });
+    }
     // Extra images - add filename into content property and prepare for async handling.
-    const coverFilename = path.basename(self.coverImage);
-    asyncFiles.push({
-      name: coverFilename, folder: 'OEBPF/images', compress: true, content: self.coverImage,
-    });
     if (self.metadata.images) {
       self.metadata.images.forEach((image) => {
         const imageFilename = path.basename(image);

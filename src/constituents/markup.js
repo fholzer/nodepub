@@ -48,21 +48,33 @@ const markup = {
 
   // Provide the contents of the cover HTML enclosure.
   getCover: (document) => {
-    const coverFilename = path.basename(document.coverImage);
+    let coverFilename;
+    if(document.coverType === "image") {
+      coverFilename = path.basename(document.cover);
+    }
+
     let result = '';
     result += "<?xml version='1.0' encoding='UTF-8' ?>[[EOL]]";
     result += "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.1//EN'  'http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd'>[[EOL]]";
     result += "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en'>[[EOL]]";
     result += '<head>[[EOL]]';
     result += '  <title>[[TITLE]]</title>[[EOL]]';
-    result += "  <style type='text/css'>[[EOL]]";
-    result += '    body { margin: 0; padding: 0; text-align: center; }[[EOL]]';
-    result += '    .cover { margin: 0; padding: 0; font-size: 1px; }[[EOL]]';
-    result += '    img { margin: 0; padding: 0; height: 100%; }[[EOL]]';
-    result += '  </style>[[EOL]]';
+    if(document.coverType === "image") {
+      result += "  <style type='text/css'>[[EOL]]";
+      result += '    body { margin: 0; padding: 0; text-align: center; }[[EOL]]';
+      result += '    .cover { margin: 0; padding: 0; font-size: 1px; }[[EOL]]';
+      result += '    img { margin: 0; padding: 0; height: 100%; }[[EOL]]';
+      result += '  </style>[[EOL]]';
+    }
     result += '</head>[[EOL]]';
     result += '<body>[[EOL]]';
-    result += `  <div class='cover'><img style='height: 100%;width: 100%;' src='images/${coverFilename}' alt='Cover' /></div>[[EOL]]`;
+    if(document.coverType === "image") {
+      result += `  <div class='cover'><img style='height: 100%;width: 100%;' src='images/${coverFilename}' alt='Cover' /></div>[[EOL]]`;
+    } else {
+      result += `  <div>[[EOL]]`;
+      result += markup.processTextContent(document.cover);
+      result += ` </div>[[EOL]]`;
+    }
     result += '</body>[[EOL]]';
     result += '</html>[[EOL]]';
 
@@ -104,12 +116,7 @@ const markup = {
     result += `    <div id='s${sectionNumber}'></div>[[EOL]]`;
     result += '    <div>[[EOL]]';
 
-    const lines = content.split('\n');
-    lines.forEach((line) => {
-      if (line.length > 0) {
-        result += `${line}[[EOL]]`;
-      }
-    });
+    result += markup.processTextContent(content);
 
     result += '    </div>[[EOL]]';
     result += '  </body>[[EOL]]';
@@ -117,6 +124,19 @@ const markup = {
 
     return replacements(document, replacements(document, result));
   },
+
+  processTextContent: (content) => {
+    let result = '';
+
+    const lines = content.split('\n');
+    lines.forEach((line) => {
+      if (line.length > 0) {
+        result += `${line}[[EOL]]`;
+      }
+    });
+
+    return result;
+  }
 
 };
 
