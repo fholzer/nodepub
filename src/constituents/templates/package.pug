@@ -1,0 +1,80 @@
+doctype xml
+
+package(xmlns='http://www.idpf.org/2007/opf' version='2.0' unique-identifier='BookId')
+  metadata(xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:opf='http://www.idpf.org/2007/opf')
+
+    if document.metadata.series && document.metadata.sequence
+      dc:title #{TITLE} (#{SERIES} ##{SEQUENCE})
+    else if document.metadata.series
+      dc:title #{TITLE} (#{SERIES})
+    else if document.metadata.sequence
+      dc:title #{TITLE} (##{SEQUENCE})
+    else
+      dc:title #{TITLE}
+
+
+    dc:identifier(id='BookId' opf:scheme='URI')= ID
+    dc:language= LANGUAGE
+    dc:creator(opf:role='aut' opf:file-as=FILEAS)= AUTHOR
+    dc:publisher= PUBLISHER
+    dc:description= DESCRIPTION
+    dc:coverage
+    dc:source= SOURCE
+    dc:date(opf:event='publication')= PUBLISHED
+    dc:date(opf:event='modification')= MODIFIED
+    dc:rights= COPYRIGHT
+
+    if document.metadata.genre
+      dc:subject= GENRE
+
+    if document.metadata.tags
+      - const tags = document.metadata.tags.split(',');
+      each tag in tags
+        dc:subject= tags
+
+    if document.metadata.series && document.metadata.sequence
+      meta(name='calibre:series' content=SERIES)
+      meta(name='calibre:series_index' content=SEQUENCE)
+
+    meta(name='cover' content=coverContent)
+
+  manifest
+    if document.coverType === "image"
+      item(id='cover-image' media-type=util.getImageType(coverFilename) href=`images/${coverFilename}`)
+    item(id='cover' media-type='application/xhtml+xml' href='cover.xhtml')
+    item(id='navigation' media-type='application/x-dtbncx+xml' href='navigation.ncx')
+
+    each section, i in document.sections
+      item(id=`s${i + 1}` media-type='application/xhtml+xml' href=`content/${section.filename}`)
+
+    if document.showContents
+      item(id='toc' media-type='application/xhtml+xml' href='content/toc.xhtml')
+
+    item(id='css' media-type='text/css' href='css/ebook.css')
+
+    if document.metadata.images
+      each image, i in document.metadata.images
+        -
+          const imageFile = path.basename(image);
+          const imageType = util.getImageType(image);
+        if imageType.length > 0
+          item(id=`img${i}` media-type=`${imageType}` href=`images/${imageFile}`)
+
+  spine(toc='navigation')
+    itemref(idref='cover' linear='yes')
+
+    each section, i in document.sections
+      if section.isFrontMatter
+        itemref(idref=`s${i}`)
+
+    if document.showContents
+      itemref(idref='toc')
+
+
+    each section, i in document.sections
+      unless section.isFrontMatter
+        itemref(idref=`s${i + 1}`)
+
+  if document.showContents
+    guide
+      reference(type='toc' title='Contents' href='content/toc.xhtml')

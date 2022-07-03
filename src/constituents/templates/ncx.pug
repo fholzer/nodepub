@@ -1,0 +1,53 @@
+doctype xml
+doctype ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd"
+
+ncx(xmlns='http://www.daisy.org/z3986/2005/ncx/')
+  - let playOrder = 1;
+
+  head
+    meta(name='dtb:uid' content=ID)
+    meta(name='dtb:depth' content='1')
+    meta(name='dtb:totalPageCount' content='0')
+    meta(name='dtb:maxPageNumber' content='0')
+  docTitle
+    text= TITLE
+  docAuthor
+    text= AUTHOR
+  navMap
+    navPoint(id='cover' playOrder=playOrder++)
+      navLabel
+        text Cover
+      content(src='cover.xhtml')
+
+    each section, i in document.sections
+      unless section.excludeFromContents
+        if section.isFrontMatter
+          -
+            let fname = section.filename;
+            let title = section.title;
+            let order = playOrder++;
+            document.filesForTOC.push({ title, link: `${fname}`, itemType: 'front' });
+          navPoint(class='section' id=`s${i + 1}` playOrder=order)
+            navLabel
+              text= title
+            content(src=`content/${fname}`)
+
+    if document.showContents
+      - document.filesForTOC.push({ title: document.metadata.contents, link: 'toc.xhtml', itemType: 'contents' });
+      navPoint(class='toc' id='toc' playOrder=playOrder++)
+        navLabel
+          text= CONTENTS
+        content(src='content/toc.xhtml')
+
+    each section, i in document.sections
+      unless section.excludeFromContents
+        if section.isFrontMatter
+          -
+            let fname = section.filename;
+            let title = section.title;
+            let order = playOrder++;
+            document.filesForTOC.push({ title, link: `${fname}`, itemType: 'main' });
+          navPoint(class='section' id=`s${i + 1}` playOrder=order)
+            navLabel
+              text= title
+            content(src=`content/${fname}`)
