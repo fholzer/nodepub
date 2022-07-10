@@ -31,3 +31,4 @@ nodepub-*.tgz
 .vscode/
 .idea/
 example-EPUB-files/
+test/test-book.epub

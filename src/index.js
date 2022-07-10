@@ -2,8 +2,7 @@ const fs = require('fs');
 const fsPromises = require('fs').promises;
 const path = require('path');
 const zip = require('archiver');
-const structuralFiles = require('./constituents/structural.js');
-const markupFiles = require('./constituents/markup.js');
+const constituents = require('./constituents.js');
 const util = require('./utility.js');
 
 const COVER_TYPES = [
@@ -78,36 +77,36 @@ const document = (metadata, generateContentsCallback) => {
 
     // Required files.
     syncFiles.push({
-      name: 'mimetype', folder: '', compress: false, content: structuralFiles.getMimetype(),
+      name: 'mimetype', folder: '', compress: false, content: constituents.getMimetype(),
     });
     syncFiles.push({
-      name: 'container.xml', folder: 'META-INF', compress: true, content: structuralFiles.getContainer(self),
+      name: 'container.xml', folder: 'META-INF', compress: true, content: constituents.getContainer(self),
     });
     syncFiles.push({
-      name: 'ebook.opf', folder: 'OEBPF', compress: true, content: structuralFiles.getOPF(self),
+      name: 'ebook.opf', folder: 'OEBPF', compress: true, content: constituents.getOPF(self),
     });
     syncFiles.push({
-      name: 'navigation.ncx', folder: 'OEBPF', compress: true, content: structuralFiles.getNCX(self),
+      name: 'navigation.ncx', folder: 'OEBPF', compress: true, content: constituents.getNCX(self),
     });
     syncFiles.push({
-      name: 'cover.xhtml', folder: 'OEBPF', compress: true, content: markupFiles.getCover(self),
+      name: 'cover.xhtml', folder: 'OEBPF', compress: true, content: constituents.getCover(self),
     });
 
     // Optional files.
     syncFiles.push({
-      name: 'ebook.css', folder: 'OEBPF/css', compress: true, content: markupFiles.getCSS(self),
+      name: 'ebook.css', folder: 'OEBPF/css', compress: true, content: constituents.getCSS(self),
     });
     for (let i = 1; i <= self.sections.length; i += 1) {
       const fname = self.sections[i - 1].filename;
       syncFiles.push({
-        name: `${fname}`, folder: 'OEBPF/content', compress: true, content: markupFiles.getSection(self, i),
+        name: `${fname}`, folder: 'OEBPF/content', compress: true, content: constituents.getSection(self, i),
       });
     }
 
     // Table of contents markup.
     if (self.showContents) {
       syncFiles.push({
-        name: 'toc.xhtml', folder: 'OEBPF/content', compress: true, content: markupFiles.getTOC(self),
+        name: 'toc.xhtml', folder: 'OEBPF/content', compress: true, content: constituents.getTOC(self),
       });
     }
 
