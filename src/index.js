@@ -163,7 +163,7 @@ const document = (metadata, generateContentsCallback) => {
     // Start creating the zip.
     await util.makeFolder(folder);
     const output = fs.createWriteStream(`${folder}/${filename}.epub`);
-    const archive = zip('zip', { store: false });
+    const archive = zip('zip', { store: false, zlib: { level: 9 } });
     archive.on('error', (archiveErr) => {
       throw archiveErr;
     });
